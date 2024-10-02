@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Values.name }}-st
+  namespace: db
+spec:
+  serviceName: {{ .Values.name }}-svc
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.name }}-pod
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.name }}-pod
+    spec:
+      nodeName: {{ .Values.nodeName }}
+      containers:
+      - name: {{ .Values.name }}
+        image: {{ .Values.image }}
+        ports:
+        - containerPort: {{ .Values.port }}
+        command: ["redis-server", "--save", "60", "100"]
+        volumeMounts:
+        - name: {{ .Values.name }}-data
+          mountPath: /data
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+  volumeClaimTemplates:
+  - metadata:
+      name: {{ .Values.name }}-data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      storageClassName: manual
+      resources:
+        requests:
+          storage: {{ .Values.storage.size }}
+

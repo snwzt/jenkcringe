@@ -1,0 +1,7 @@
+name: redis
+port: 6379
+replicaCount: 1
+nodeName: gort-instance-3
+image: "redis:7.0"
+storage:
+  size: 1Gi

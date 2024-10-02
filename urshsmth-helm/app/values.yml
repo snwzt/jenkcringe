@@ -1,0 +1,16 @@
+name: ursh
+replicaCount: 1
+image: notmde/urshsmth:11
+port: 5000
+
+db:
+  name: redis
+  namespace: db 
+  port: 6379
+
+ingress:
+  class: nginx
+  host: ursh.pii.at
+  secret: ursh-tls
+  path: /
+  pathType: Prefix
