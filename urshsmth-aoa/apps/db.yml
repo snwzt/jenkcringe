@@ -1,17 +1,24 @@
-project: default
-source:
-  repoURL: https://github.com/snwzt/stuff
-  path: urshsmth-helm/db
-  targetRevision: HEAD
-  helm:
-    valueFiles:
-      - values.yml
-    values: |
-      nodeName: argostuff-control-plane
-destination:
-  server: https://kubernetes.default.svc
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: redis
   namespace: db
-syncPolicy:
-  syncOptions:
-    - CreateNamespace=true
-
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/snwzt/stuff
+    path: urshsmth-helm/db
+    targetRevision: HEAD
+    helm:
+      valueFiles:
+        - values.yml
+      values: |
+        nodeName: argostuff-control-plane
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: db
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true

@@ -1,14 +1,22 @@
-project: default
-source:
-  repoURL: https://github.com/snwzt/stuff
-  path: urshsmth-helm/app
-  targetRevision: HEAD
-  helm:
-    valueFiles:
-      - values.yml
-destination:
-  server: https://kubernetes.default.svc
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: app
   namespace: app
-syncPolicy:
-  syncOptions:
-    - CreateNamespace=true
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/snwzt/stuff
+    path: urshsmth-helm/app
+    targetRevision: HEAD
+    helm:
+      valueFiles:
+        - values.yml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: app
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
