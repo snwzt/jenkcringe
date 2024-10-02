@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: {{ .Values.name }}-st
-  namespace: db
 spec:
   serviceName: {{ .Values.name }}-svc
   replicas: {{ .Values.replicaCount }}
