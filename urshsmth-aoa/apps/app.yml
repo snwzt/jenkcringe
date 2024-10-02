@@ -1,0 +1,14 @@
+project: default
+source:
+  repoURL: https://github.com/snwzt/stuff
+  path: urshsmth-helm/app
+  targetRevision: HEAD
+  helm:
+    valueFiles:
+      - values.yml
+destination:
+  server: https://kubernetes.default.svc
+  namespace: app
+syncPolicy:
+  syncOptions:
+    - CreateNamespace=true
