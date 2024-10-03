@@ -1,6 +1,6 @@
 name: ursh
 replicaCount: 1
-image: notmde/urshsmth:11
+image: notmde/urshsmth:10
 port: 5000
 
 db:
