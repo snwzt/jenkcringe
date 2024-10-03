@@ -14,8 +14,7 @@ spec:
     helm:
       valueFiles:
         - values.yml
-      values: |
-        nodeName: argostuff-control-plane
+      values: 'nodeName: gort-instance-1'
   destination:
     server: https://kubernetes.default.svc
     namespace: db
