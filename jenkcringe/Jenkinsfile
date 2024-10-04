@@ -1,8 +1,6 @@
 pipeline {
     agent {
-        dockerContainer {
-            image 'jenkins/agent'
-        }
+        label "worker"
     }
     
     environment {
@@ -22,21 +20,28 @@ pipeline {
                     def dockerHome = tool 'docker'
                     env.PATH = "${dockerHome}/bin:${env.PATH}"
                 }
+                withCredentials([usernamePassword(credentialsId: 'e301d761-0cdf-44de-bda6-a634432bc4b7', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    sh 'echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin'
+                }
             }
         }
 
-        stage('Build') {
-            steps {
-                sh "docker build . -t ursh:${env.BUILD_ID}"
-            }
-        }
-        
-        stage('Push') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'e301d761-0cdf-44de-bda6-a634432bc4b7', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                    sh 'echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin'
-                    sh "docker tag ursh:${env.BUILD_ID} notmde/urshsmth:${env.BUILD_ID}"
-                    sh "docker push notmde/urshsmth:${env.BUILD_ID}"
+        stage('Build and Push') {
+            parallel {
+                stage('Build and Push shorten') {
+                    steps {
+                        sh "docker build shorten -t urshsh:${env.BUILD_ID}"
+                        sh "docker tag urshsh:${env.BUILD_ID} notmde/urshsh:${env.BUILD_ID}"
+                        sh "docker push notmde/urshsh:${env.BUILD_ID}"
+                    }
+                }
+
+                stage('Build and Push unshorten') {
+                    steps {
+                        sh "docker build unshorten -t urshunsh:${env.BUILD_ID}"
+                        sh "docker tag urshunsh:${env.BUILD_ID} notmde/urshunsh:${env.BUILD_ID}"
+                        sh "docker push notmde/urshunsh:${env.BUILD_ID}"
+                    }
                 }
             }
         }
