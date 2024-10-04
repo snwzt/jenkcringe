@@ -16,14 +16,10 @@ ingress:
   secret: ursh-tls
   paths:
   - path: /
-    pathType: Exact
+    pathType: Prefix
     name: sh
     port: 5000
-  - path: /shorten
-    pathType: Exact
-    name: sh
-    port: 5000
-  - path: /s
+  - path: /s/
     pathType: Prefix
     name: unsh
     port: 5001
