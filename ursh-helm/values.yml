@@ -30,6 +30,8 @@ ingress:
 
 db:
   name: redis
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
   image: "redis:7.0"
   port: 6379
   nodeName: gort-argocd-instance-1
