@@ -1,0 +1,11 @@
+{{- range .Values.apps }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $.Values.application }}-{{ .name }}-config
+  namespace: app 
+data:
+  APP_PORT: {{ .port | quote }}
+{{- end }}
+

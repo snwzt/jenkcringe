@@ -1,0 +1,39 @@
+application: ursh
+
+apps:
+  - name: sh
+    image: notmde/urshsh:7
+    port: 5000
+    replicaCount: 1
+  - name: unsh
+    image: notmde/urshunsh:7
+    port: 5001
+    replicaCount: 1 
+
+ingress:
+  class: traefik
+  host: "ursh.pii.at"
+  secret: ursh-tls
+  paths:
+  - path: /
+    pathType: Exact
+    name: sh
+    port: 5000
+  - path: /shorten
+    pathType: Exact
+    name: sh
+    port: 5000
+  - path: /s
+    pathType: Prefix
+    name: unsh
+    port: 5001
+
+db:
+  name: redis
+  image: "redis:7.0"
+  port: 6379
+  nodeName: gort-argocd-instance-1
+  volumeClaims:
+    requests:
+        size: 1Gi
+

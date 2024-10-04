@@ -1,0 +1,16 @@
+{{- range .Values.apps }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $.Values.application }}-{{ .name }}-svc
+  namespace: app
+spec:
+  type: ClusterIP
+  ports:
+    - port: {{ .port }}
+      targetPort: {{ .port }}
+  selector:
+    app: {{ $.Values.application }}-{{ .name }}-pod
+{{- end }}
+

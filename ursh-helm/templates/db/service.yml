@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.application }}-{{ .Values.db.name }}-svc
+  namespace: db
+  annotations: {{ .Values.db.annotations | toYaml | nindent 4 }}
+spec:
+  clusterIP: None
+  selector:
+    app: {{ .Values.application }}-{{ .Values.db.name }}-pod
+  ports:
+    - port: {{ .Values.db.port }}
+      targetPort: {{ .Values.db.port }}
+

@@ -1,0 +1,45 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Values.application }}-{{ .Values.db.name }}-st
+  namespace: db
+  annotations: {{ .Values.db.annotations | toYaml | nindent 4 }}
+spec:
+  serviceName: {{ .Values.application }}-{{ .Values.db.name }}-svc
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.application }}-{{ .Values.db.name }}-pod
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.application }}-{{ .Values.db.name }}-pod
+    spec:
+      nodeName: {{ .Values.db.nodeName }}
+      containers:
+      - name: {{ .Values.db.name }}
+        image: {{ .Values.db.image }}
+        ports:
+        - containerPort: {{ .Values.db.port }}
+        command: ["redis-server", "--save", "60", "100"]
+        volumeMounts:
+        - name: {{ .Values.db.name }}-data
+          mountPath: /data
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+  volumeClaimTemplates:
+  - metadata:
+      name: {{ .Values.db.name }}-data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      storageClassName: manual
+      resources:
+        requests:
+          storage: {{ .Values.db.volumeClaims.requests.size }}
+

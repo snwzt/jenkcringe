@@ -1,0 +1,40 @@
+{{- range .Values.apps }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $.Values.application }}-{{ .name }}-dep
+  namespace: app
+spec:
+  replicas: {{ .replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ $.Values.application }}-{{ .name }}-pod
+  template:
+    metadata:
+      labels:
+        app: {{ $.Values.application}}-{{ .name }}-pod
+    spec:
+      containers:
+        - name: {{ .name }}
+          image: {{ .image }}
+          env:
+            - name: REDIS_URI
+              value: "redis://{{ $.Values.application }}-{{ $.Values.db.name }}-svc.db.svc.cluster.local:{{ $.Values.db.port }}"
+            - name: APP_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ $.Values.application }}-{{ .name }}-config
+                  key: APP_PORT
+          ports:
+            - containerPort: {{ .port }}
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+      restartPolicy: Always
+{{- end }}
+

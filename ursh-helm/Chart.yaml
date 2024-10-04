@@ -1,0 +1,6 @@
+apiVersion: v2
+name: ursh-helm
+description: A Helm chart for deploying ursh on kubernetes
+type: application
+version: 0.1.0
+
