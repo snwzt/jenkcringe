@@ -2,11 +2,11 @@ application: ursh
 
 apps:
   - name: sh
-    image: notmde/urshsh:2
+    image: notmde/urshsh:3
     port: 5000
     replicaCount: 1
   - name: unsh
-    image: notmde/urshunsh:2
+    image: notmde/urshunsh:3
     port: 5001
     replicaCount: 1 
 
