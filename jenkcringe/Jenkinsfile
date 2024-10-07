@@ -2,9 +2,9 @@ pipeline {
     agent {
         label "worker"
     }
-    
+
     environment {
-        DOCKER_HOST = 'tcp://192.168.122.42:4243'
+        DOCKER_HOST = 'tcp://172.17.0.1:4243'
     }
 
     stages {
@@ -20,7 +20,7 @@ pipeline {
                     def dockerHome = tool 'docker'
                     env.PATH = "${dockerHome}/bin:${env.PATH}"
                 }
-                withCredentials([usernamePassword(credentialsId: 'e301d761-0cdf-44de-bda6-a634432bc4b7', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                withCredentials([usernamePassword(credentialsId: '85d83daf-a58d-47f9-9b94-c991d8aa0404', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
                     sh 'echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin'
                 }
             }
@@ -31,6 +31,7 @@ pipeline {
                 stage('Build and Push shorten') {
                     steps {
                         sh "docker build shorten -t urshsh:${env.BUILD_ID}"
+
                         sh "docker tag urshsh:${env.BUILD_ID} notmde/urshsh:${env.BUILD_ID}"
                         sh "docker push notmde/urshsh:${env.BUILD_ID}"
                     }
@@ -39,11 +40,36 @@ pipeline {
                 stage('Build and Push unshorten') {
                     steps {
                         sh "docker build unshorten -t urshunsh:${env.BUILD_ID}"
+
                         sh "docker tag urshunsh:${env.BUILD_ID} notmde/urshunsh:${env.BUILD_ID}"
                         sh "docker push notmde/urshunsh:${env.BUILD_ID}"
                     }
                 }
             }
         }
+
+        stage('Update Configuration Repository') {
+            steps{
+                withCredentials([string(credentialsId: '4a9723e3-ba7d-4c7f-b0c0-f89f0277d57c', variable: 'GIT_TOKEN')]) {
+                    sh '''
+                    git config --global user.email "jenkins@jenkins.com"
+                    git config --global user.name "jenkins"
+                    git clone https://$GIT_TOKEN:x-oauth-basic@github.com/snwzt/stuff.git
+                    '''
+                    sh """
+                    cd stuff
+                    sed -i -E "s|(notmde/urshsh:)([0-9]+)|notmde/urshsh:${env.BUILD_ID}|g" ursh-helm/values.yml
+                    sed -i -E "s|(notmde/urshunsh:)([0-9]+)|notmde/urshunsh:${env.BUILD_ID}|g" ursh-helm/values.yml
+                    """
+
+                    sh '''
+                    git add .
+                    git commit -m "update"
+                    git push https://$GIT_TOKEN:x-oauth-basic@github.com/snwzt/stuff.git
+                    '''
+                }
+            }
+        }
     }
 }
+
